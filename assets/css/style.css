@@ -1,0 +1,102 @@
+
+.container{
+height: auto;
+/* border: 1px solid black; */
+background-color: #ECD6EC;
+}
+#menu{
+    background-color: purple;
+    width: 300px;
+    color:white !important;
+    font-family:'roboto';
+ 
+}
+.nav-link{
+    color: white !important;
+    font-family:'Helvetica';
+}
+.nav-link:hover{
+    text-decoration: underline;
+    font-size: 15px;
+}
+form {
+    margin:0 auto;
+    width: 300px;
+    border-radius: 20px;
+    border: 1px solid #DEBFDE;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  input {
+    all: unset;
+    font: 13px;
+    font-family: 'roboto';
+    color:black;
+    height: 10px;
+    width: 100%;
+    padding: 6px 10px;
+  }
+
+  button {
+    all: unset;
+    cursor: pointer;
+    color:gray;
+  }
+  header{
+    font-size: 21px;
+    font-weight: bold;
+    font-family: 'Helvetica';
+    margin: 20px 0;
+  }
+.card{
+    width:100px;
+    height: 50px;
+}
+img{
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto;
+}
+.cars{
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    place-items: center;
+}
+.brand-name{
+    text-align: center;
+    font-size: 17px;
+    font-weight: bold;
+    font-family: 'Helvetica';
+}
+.home-nave{
+    background-color: purple;
+    border: 1px solid black;
+    height: 40px;
+    width: 100%;
+    position: fixed;
+    bottom: 0px;
+    z-index: 0;
+    border-radius: 20px 20px 0px 0px;
+    
+}
+.content{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    text-align: center;
+    color: white;
+
+}
+.content i{
+    margin-right: 15%;
+    margin-left: 20px;
+    margin-top: 10px;
+}
+#car-img{
+    height: 100%;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid gray;
+    margin-bottom: 50px;
+}

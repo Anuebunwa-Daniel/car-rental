@@ -1,0 +1,57 @@
+#card{
+    display: block;
+    margin: 0 auto;
+    height: 16rem;
+    width: 450px;
+    margin-bottom: 50px;
+   
+   
+}
+.img-fluid{
+    position: absolute;
+    border-radius: 10px ;
+}
+
+.car-details{
+    margin-left: 10px;
+    font-weight: bolder;
+    font-family: 'helvetical';
+    font-size: 20px;
+    color: white;
+
+    transform: translateY(150px);
+   
+}
+.car-properties{
+    display: grid;
+    gap: 1rem;
+   grid-template-columns:1fr 1fr 1fr;
+   font-weight: bold;
+   font-family: 'helvetical';
+  
+}
+.arrow{
+    color: black;
+    /* margin-top: -200px; */
+    transform: translateY(10px);  
+    margin-left: 10px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgb(242, 238, 238);
+    background-color: white;
+    border-radius: 50%;
+    
+}
+#millage{
+    text-align: center;
+    margin-left: 7px;
+    color: black;
+}
+.mil{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    color: white;
+    margin-right: 20px;
+  
+}
