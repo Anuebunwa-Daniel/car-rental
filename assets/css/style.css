@@ -4,21 +4,26 @@ height: auto;
 /* border: 1px solid black; */
 background-color: #ECD6EC;
 }
-#menu{
-    background-color: purple;
-    width: 300px;
-    color:white !important;
-    font-family:'roboto';
- 
-}
+
 .nav-link{
     color: white !important;
+    font:bold !important;
     font-family:'Helvetica';
 }
 .nav-link:hover{
     text-decoration: underline;
     font-size: 15px;
-}
+    font-family:'Helvetica';
+  }
+  #tittle{
+    color: white;
+    font-family:'Helvetica' 'cursive';
+  }
+  #navbarOffcanvasLg{
+    background-color: purple;
+    width: 300px;
+    font-family:'Helvetica';
+  }
 form {
     margin:0 auto;
     width: 300px;
@@ -93,10 +98,25 @@ img{
     margin-left: 20px;
     margin-top: 10px;
 }
+.car-img{
+    display: block;
+    margin: 0 auto;
+
+    width: auto;
+    height: auto;
+}
 #car-img{
-    height: 100%;
-    width: 100%;
+   
+    height: 200px;
+    width: 400px;
     border-radius: 5px;
     border: 1px solid gray;
-    margin-bottom: 50px;
+    margin-bottom: 100px;
+}
+
+
+@media only screen and (min-width: 767px){
+    .nav-link, .navbar-brand{
+        color:rgb(130, 27, 27) !important;
+    }
 }

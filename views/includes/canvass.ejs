@@ -1,71 +1,42 @@
-<div class="container">
-    <!-- offcanvas btn -->
-    <!-- <div class="container" id="container"> -->
-        <a class="btn  my-3" data-bs-toggle="offcanvas" href="#menu" role="button" aria-controls="menu" class ="d-block ">
-            <i class="fa-solid fa-bars"></i>
-        </a>
-    
+<nav class="navbar navbar-expand-lg">
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarOffcanvasLg" aria-controls="navbarOffcanvasLg">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#">CruiseEasy Autos</a>
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="navbarOffcanvasLg" aria-labelledby="navbarOffcanvasLgLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tittle">CruiseEasy Autos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+      <div class="offcanvas-body">
        
-        <form role="search" id="form">
-            <input type="search" id="query" name="q" placeholder="search cars..." aria-label="search through site content">
-            <button><i class="fa-solid fa-magnifying-glass"></i></button>
-        </form>
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">
+                <p> Contact Us </p>
+                </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/project">
+                <p>Policy</p>
+            </a>
+          </li>
+         
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/contact">
+                <p>Guidelines</p>
+            </a>
+          </li>
 
-    
-
-    
-
-
-
-        <!-- offcanvas menu-->
-<div class="offcanvas offcanvas-start" tabindex="0" id="menu" aria-labelledby="menu-Label">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="menu-Label">Car Rental</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <li class="nav-item">
+            <a class="nav-link active" href="assets/Resume.pdf" download="Resume">
+                <p>Security</p>
+            </a>
+          </li>
+          </ul>
     </div>
-    <div class="offcanvas-body">
-        <div class="wrapper">
-            <div class="sidebar"  >
-            
-                    <ul class="nav d-block mt-3">
-                     
-                        <li>
-                            <a class="nav-link" href="/contact.html">
-                                <p>Contact us</p>
-                            </a>
-                        </li>
-                       <li>
-                            <a class="nav-link" href="#">
-                                <p>Policy</p>
-                            </a>
-                        </li>
+  </nav>
 
-                        <li>
-                            <a class="nav-link" href="#">
-                                <p>Guidelines</p>
-                            </a>
-                                
-                        
-                        </li>
-                        <li>
-                            <a class="nav-link " href="#">
-
-                            <p>Security</p>
-                        </a>
-                            
-                        </li>
-                       
-                    </ul>
-                </div>
-            </div>
-    
-     
-      </div>
-    </div>
-
-
-
-
-
-
- 
+  <form action="">
+    <i class="fa-duotone fa-magnifying-glass"></i><input type="search" placeholder=" Search Cars">
+  </form>
