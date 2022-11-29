@@ -7,7 +7,7 @@ const bodyParser  = require('body-parser')
 const {cloudinary} =require('./utis/cloudinary')
 const multer = require('multer')
 const upload = require('./utis/multer')
-const {cars} = require('./toyotacarSchema')
+const toyotacarSchema = require('./toyotacarSchema')
 
 
 const app = express()
@@ -41,8 +41,8 @@ app.get('/', (req,res)=>{
 })
 
 app.get('/toyota-cars', async(req,res)=>{
-    const toyotaCars= await cars.find()
-    console.log(toyotaCars)
+    const toyotaCars= await toyotacarSchema.find()
+    // console.log(toyotaCars)
 
     res.render('toyota-cars',{
         title: 'toyota-cars page',

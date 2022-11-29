@@ -45,9 +45,18 @@
 #car-slide{
     margin-bottom: 50px;
     border-radius: 10px;
+    border: 1px solid red;
 }
 
 #car-caro{
     border-radius: 10px;
 
+}
+
+@media only screen and (min-width:767px){
+    #car-slide{
+        width: 600px;
+        float: right;
+        margin-top: -350px;
+    }
 }

@@ -5,12 +5,12 @@ height: auto;
 background-color: #ECD6EC;
 }
 
-.nav-link{
+#nav-link{
     color: white !important;
     font:bold !important;
     font-family:'Helvetica';
 }
-.nav-link:hover{
+#nav-link:hover{
     text-decoration: underline;
     font-size: 15px;
     font-family:'Helvetica';
@@ -74,6 +74,7 @@ img{
     font-size: 17px;
     font-weight: bold;
     font-family: 'Helvetica';
+    color: ;
 }
 .home-nave{
     background-color: purple;
@@ -116,7 +117,33 @@ img{
 
 
 @media only screen and (min-width: 767px){
-    .nav-link, .navbar-brand{
+    #nav-link, .navbar-brand{
         color:rgb(130, 27, 27) !important;
+    }
+    #nav-link:hover{
+      text-decoration: underline;
+      font-size: 15px;
+      font-family:'Helvetica';
+    }
+
+    .cars{
+      display: block;
+    }
+    .brand-name{
+      display: block;
+      text-align: left;
+      text-decoration: none;
+      color: brown;
+      width: 100px;
+      margin-top: -80px;
+
+    }
+    .brand-name:hover{
+      text-decoration: underline;
+      font-size: 17px;
+      color: brown;
+    }
+    .card{
+      visibility: hidden;
     }
 }
