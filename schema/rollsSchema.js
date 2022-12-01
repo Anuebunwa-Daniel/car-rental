@@ -5,7 +5,7 @@ const mongodb ='mongodb://localhost:27017/cars'
 
 mongoose.connect(mongodb)
 
-const toyotacarSchema = new mongoose.Schema({
+const rollsSchema = new mongoose.Schema({
    carName :{
         type: String,
         
@@ -31,8 +31,12 @@ const toyotacarSchema = new mongoose.Schema({
     image:{
         type: String,
        
+    },
+
+    price:{
+        type: String
     }
    
 })
 
-module.exports=mongoose.model('toyota', toyotacarSchema)
+module.exports=mongoose.model('RollsRoyce', rollsSchema)
