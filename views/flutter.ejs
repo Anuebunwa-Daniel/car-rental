@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> </title>
+</head>
+<body>
+    <div class="container">
+        <form action="/next" method="post">
+            <label for="cardNumber">Card Number</label>
+            <input type="number" placeholder="Card Number" required name="cardNumber">
+
+            <br>
+
+            <label for="cvv">Cvv</label>
+            <input type="number" placeholder="cvv" required name="cvv">
+
+            <br>
+
+            <div>
+                <p>Expiry Date</p>
+                <input type="number" placeholder="month eg 01" required name="expMonth">
+
+                <input type="number" placeholder="year" required name="expYear">
+
+            </div>
+           
+
+            <br>
+            <label for="fullName">Full Name</label>
+            <input type="text" placeholder="Full Name" required name="fullName">
+
+            <br>
+            <label for="email">Email</label>
+            <input type="email" placeholder="Email" required name="email">
+
+            <br>
+
+            <br>
+            <label for="amount">Amount</label>
+            <input type="number" placeholder="Amount" required name="amount">
+
+            <br>
+            <label for="phoneNumber">Phone Number</label>
+            <input type="tel" placeholder="phone Number" required name="phoneNumber">
+
+           
+            <br>
+
+            <br>
+
+            <div>
+                <input type="submit" value="Submit form" />
+              </div>
+        </form>
+    </div>
+</body>
+</html>

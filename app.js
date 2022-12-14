@@ -5,6 +5,7 @@ const ejsLayouts = require('express-ejs-layouts')
 const mongoose = require('mongoose')
 const bodyParser  = require('body-parser')
 const {cloudinary} =require('./utis/cloudinary')
+const {otp} =require('./assets/script/script.js')
 const multer = require('multer')
 const upload = require('./utis/multer')
 const toyotacarSchema = require('./schema/toyotacarSchema')
@@ -13,8 +14,12 @@ const audiSchema = require('./schema/audiSchema')
 const bmwSchema = require('./schema/bmwSchema')
 const hyundaiSchema = require('./schema/hyundaiSchema')
 const jeepSchema = require('./schema/jeepSchema')
+const Flutterwave = require('flutterwave-node-v3');
+const open = require('open');
+var axios = require('axios');
 
 
+const flw = new Flutterwave(process.env.FLW_PUBLIC_KEY, process.env.FLW_SECRET_KEY);
 const app = express()
 
 // connecting to the database
@@ -23,13 +28,15 @@ mongoose.connect(mongodb)
 .then(()=>{
     console.log('connected to the database')
 })
-.catch((err)=>{
+.catch((err)=>{ 
     console.log(err + 'Database connection failed')
 })
 
 // static files
 app.use(express.static ('assets'))
 app.use('/css', express.static(__dirname + 'assets/css'))
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 
 
 // setting the templates
@@ -89,9 +96,125 @@ app.get('/Rolls-Royce-cars', async(req,res)=>{
     const rollsCars= await rollsSchema.find()
     res.render('carFolder/Rolls-Royce-cars',{
         title: 'Rolls-Royce-cars page',
-        rollsRoyces: rollsCars
+        rollsroyces: rollsCars
     })
 })
+
+app.get('/flutter', (req,res)=>{
+    res.render('flutter', {
+        title: ''
+    })
+})
+
+app.get('/otp', (req,res)=>{
+    res.render('otp')
+})
+   
+app.post('/next', (req,res)=>{
+// Initiating the transaction
+    const payload = {
+        "card_number": '5531886652142950',
+        "cvv": "564",
+        "expiry_month": "09",
+        "expiry_year": "32",
+        "currency": "NGN",
+        "amount": "200",
+        "redirect_url": "http://localhost:12345/success",
+        "fullname": "Odunze ",
+        "email": "anuebunwadaniel66@gmail.com",
+        "phone_number": "08036541679",
+        "enckey": process.env.FLW_ENCRYPTION_KEY,
+        "tx_ref": "cruiseAuto-" + Math.floor(Math.random() * 100000)
+    
+    }
+    
+    const chargeCard = async () => {
+        try {
+            const response = await flw.Charge.card(payload)
+            // console.log(response)
+            
+            // Authorizing transactions
+            
+            // For PIN transactions
+            if (response.meta.authorization.mode === 'pin') {
+                let payload2 = payload
+                payload2.authorization = {
+                    "mode": "pin",
+                    "fields": [
+                        "pin"
+                    ],
+                    "pin": 3310
+                }
+                const reCallCharge = await flw.Charge.card(payload2)
+                
+                // Add the OTP to authorize the transaction
+                var data = JSON.stringify({
+                    "length": 6,
+                    "customer": {
+                      "name": "dahumble",
+                      "email": "anuebunwadaniel66@gmail.com",
+                      "phone": "08036541679"
+                    },
+                    "sender": "CruiseAuto",
+                    "send": true,
+                    "medium": [
+                      "email"
+                    ],
+                    "expiry": 5
+                  });
+                  
+                  var config = {
+                    method: 'post',
+                    url: 'https://api.flutterwave.com/v3/otps',
+                    headers: {
+                      'Authorization': 'Bearer FLWSECK_TEST-c7f0c75524a7718f3e4598814af028ea-X',
+                      'Content-Type': 'application/json'
+                    },
+                    data : data
+                  };
+                  
+                  axios(config)
+                  .then(function (response) {
+                    res.render('otp')
+                    console.log(JSON.stringify(response.data));
+                  })
+                  .catch(function (error) {
+                    res.send('failed')
+                    // console.log(error);
+                  });
+                  
+                  var otp =req.body.otp1 + req.body.otp2+req.body.otp3+req.body.otp4+req.body.otp5+req.body.otp6
+
+                  console.log(otp)
+                const callValidate = await flw.Charge.validate({
+
+                    "otp":otp ,
+                    "flw_ref": reCallCharge.data.flw_ref
+                })
+                // console.log(callValidate)
+                
+            }
+            // For 3DS or VBV transactions, redirect users to their issue to authorize the transaction
+            if (response.meta.authorization.mode === 'redirect') {
+                
+                var url = response.meta.authorization.redirect
+                open(url)
+            }
+            
+            // console.log(response)
+            // res.render('success')
+            
+            
+        } catch (error) {
+            // console.log(error)
+            // res.render('failed')
+        }
+    }
+    
+    chargeCard();
+})
+    
+
 
 //Navigating through the Admin page
 app.get('/toyota', (req,res)=>{
@@ -150,7 +273,12 @@ app.get('/success', (req,res)=>{
 
 app.post('/toyota', upload.single('image'),  async(req, res, next)=>{
     console.log(req.body)
-    const result = await cloudinary.uploader.upload(req. file.path, {folder: 'car rental cars/toyota cars'})
+    const result = await cloudinary.uploader.upload(req. file.path, {
+        folder: 'car rental cars/toyota cars',
+        width:600,
+        height:400
+        
+})
     const carInfo = req.body
     console.log(result)
 
@@ -179,7 +307,11 @@ app.post('/toyota', upload.single('image'),  async(req, res, next)=>{
 
 app.post('/rolls', upload.single('image'),  async(req, res, next)=>{
     console.log(req.body)
-    const result = await cloudinary.uploader.upload(req. file.path, {folder: 'car rental cars/Rolls Royce'})
+    const result = await cloudinary.uploader.upload(req. file.path, {
+        folder: 'car rental cars/Rolls Royce',
+        width:600,
+        height:400
+        })
     const carInfo = req.body
     console.log(result)
 
@@ -208,15 +340,19 @@ app.post('/rolls', upload.single('image'),  async(req, res, next)=>{
 
 app.post('/Audi', upload.single('image'),  async(req, res, next)=>{
     console.log(req.body)
-    const result = await cloudinary.uploader.upload(req. file.path, {folder: 'car rental cars/Audi'})
+    const result = await cloudinary.uploader.upload(req. file.path, {
+        folder: 'car rental cars/Audi',
+        width:600,
+        height:400
+    })
     const carInfo = req.body
     console.log(result)
 
-    audi()
-    async function audi(){
+    audis()
+    async function audis(){
 
         try{
-        const rolls =new audiSchema({
+        const audi =new audiSchema({
             carName: carInfo.carName,
             millage: carInfo.millage,
             seater: carInfo.seater,
@@ -237,7 +373,11 @@ app.post('/Audi', upload.single('image'),  async(req, res, next)=>{
 
 app.post('/Bmw', upload.single('image'),  async(req, res, next)=>{
     console.log(req.body)
-    const result = await cloudinary.uploader.upload(req. file.path, {folder: 'car rental cars/BMW'})
+    const result = await cloudinary.uploader.upload(req. file.path, {
+        folder: 'car rental cars/BMW',
+        width:600,
+        height:400
+    })
     const carInfo = req.body
     console.log(result)
 
@@ -266,7 +406,11 @@ app.post('/Bmw', upload.single('image'),  async(req, res, next)=>{
 
 app.post('/hyundai', upload.single('image'),  async(req, res, next)=>{
     console.log(req.body)
-    const result = await cloudinary.uploader.upload(req. file.path, {folder: 'car rental cars/Hyundai'})
+    const result = await cloudinary.uploader.upload(req. file.path, {
+        folder: 'car rental cars/Hyundai',
+        width:600,
+        height:400
+    })
     const carInfo = req.body
     console.log(result)
 
@@ -295,7 +439,11 @@ app.post('/hyundai', upload.single('image'),  async(req, res, next)=>{
 
 app.post('/jeep', upload.single('image'),  async(req, res, next)=>{
     console.log(req.body)
-    const result = await cloudinary.uploader.upload(req. file.path, {folder: 'car rental cars/Jeep'})
+    const result = await cloudinary.uploader.upload(req. file.path, {
+        folder: 'car rental cars/Jeep',
+        width:600,
+        height:400
+    })
     const carInfo = req.body
     console.log(result)
 

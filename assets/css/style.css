@@ -122,7 +122,7 @@ img{
 }
 
 
-@media only screen and (min-width: 767px){
+@media only screen and (min-width: 900px){
     #nav-link, .navbar-brand{
         color:rgb(130, 27, 27) !important;
     }
@@ -148,7 +148,7 @@ img{
  
     .brand-name:hover{
       text-decoration: underline;
-      font-size: 17px;
+      font-size: 27px;
       color: brown;
     }
     .card{

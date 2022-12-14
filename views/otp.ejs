@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otp page </title>
+    <link rel="stylesheet" href="./css/otpPage.css">
+</head>
+<body>
+    <h2>A 6 digit otp was sent to the email you provided, please check your email and input the otp</h2>
+
+    <form action="/otp" method="">
+        <div class="otp">
+            <input type="number"   name="otp1" id="otp1" maxlength="6">
+
+        </div>
+            <br>
+        <div>
+            <input type="button"value="Continue &#8594" id="submit" >
+        </div>
+            <br>
+            <p id="alert"></p>
+        </form>
+       
+    
+    <script src="./script/script.js"></script>
+</body>
+</html>
