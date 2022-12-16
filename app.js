@@ -5,7 +5,6 @@ const ejsLayouts = require('express-ejs-layouts')
 const mongoose = require('mongoose')
 const bodyParser  = require('body-parser')
 const {cloudinary} =require('./utis/cloudinary')
-const {otp} =require('./assets/script/script.js')
 const multer = require('multer')
 const upload = require('./utis/multer')
 const toyotacarSchema = require('./schema/toyotacarSchema')
@@ -100,8 +99,8 @@ app.get('/Rolls-Royce-cars', async(req,res)=>{
     })
 })
 
-app.get('/flutter', (req,res)=>{
-    res.render('flutter', {
+app.get('/payment-page', (req,res)=>{
+    res.render('payment-page', {
         title: ''
     })
 })
@@ -110,111 +109,139 @@ app.get('/otp', (req,res)=>{
     res.render('otp')
 })
    
-app.post('/next', (req,res)=>{
-// Initiating the transaction
+
+// The route where we initiate payment (Steps 1 - 3)
+app.post('/payment-page', async (req, res) => {
     const payload = {
-        "card_number": '5531886652142950',
-        "cvv": "564",
-        "expiry_month": "09",
-        "expiry_year": "32",
-        "currency": "NGN",
-        "amount": "200",
-        "redirect_url": "http://localhost:12345/success",
-        "fullname": "Odunze ",
-        "email": "anuebunwadaniel66@gmail.com",
-        "phone_number": "08036541679",
-        "enckey": process.env.FLW_ENCRYPTION_KEY,
-        "tx_ref": "cruiseAuto-" + Math.floor(Math.random() * 100000)
-    
+        card_number: req.body.cardNumber,
+        cvv: req.body.cvv,
+        expiry_month: req.body.expMonth,
+        expiry_year: req.body.expYear,
+        currency: 'NGN',
+        amount: req.body.amount,
+        email: req.body.email,
+        fullname: req.body.fullName,
+        // Generate a unique transaction reference
+        tx_ref: "CruiseEasyAuto_" + Math.floor(Math.random(100000)),
+        // redirect_url: process.env.APP_BASE_URL + '/pay/redirect',
+        enckey: process.env.FLW_ENCRYPTION_KEY
     }
-    
-    const chargeCard = async () => {
-        try {
-            const response = await flw.Charge.card(payload)
-            // console.log(response)
-            
-            // Authorizing transactions
-            
-            // For PIN transactions
-            if (response.meta.authorization.mode === 'pin') {
-                let payload2 = payload
-                payload2.authorization = {
-                    "mode": "pin",
-                    "fields": [
-                        "pin"
-                    ],
-                    "pin": 3310
-                }
-                const reCallCharge = await flw.Charge.card(payload2)
-                
-                // Add the OTP to authorize the transaction
-                var data = JSON.stringify({
-                    "length": 6,
-                    "customer": {
-                      "name": "dahumble",
-                      "email": "anuebunwadaniel66@gmail.com",
-                      "phone": "08036541679"
-                    },
-                    "sender": "CruiseAuto",
-                    "send": true,
-                    "medium": [
-                      "email"
-                    ],
-                    "expiry": 5
-                  });
-                  
-                  var config = {
-                    method: 'post',
-                    url: 'https://api.flutterwave.com/v3/otps',
-                    headers: {
-                      'Authorization': 'Bearer FLWSECK_TEST-c7f0c75524a7718f3e4598814af028ea-X',
-                      'Content-Type': 'application/json'
-                    },
-                    data : data
-                  };
-                  
-                  axios(config)
-                  .then(function (response) {
-                    res.render('otp')
-                    console.log(JSON.stringify(response.data));
-                  })
-                  .catch(function (error) {
-                    res.send('failed')
-                    // console.log(error);
-                  });
-                  
-                  var otp =req.body.otp1 + req.body.otp2+req.body.otp3+req.body.otp4+req.body.otp5+req.body.otp6
+    const response = await flw.Charge.card(payload);
 
-                  console.log(otp)
-                const callValidate = await flw.Charge.validate({
+    switch (response?.meta?.authorization?.mode) {
+        case 'pin':
+        case 'avs_noauth':
+            // Store the current payload
+            req.session.charge_payload = payload;
+            // Now we'll show the user a form to enter
+            // the requested fields (PIN or billing details)
+            req.session.auth_fields = response.meta.authorization.fields;
+            req.session.auth_mode = response.meta.authorization.mode;
+            return res.redirect('/otp');
+        case 'redirect':
+            // Store the transaction ID
+            // so we can look it up later with the flw_ref
+            await redis.setAsync(`txref-${response.data.tx_ref}`, response.data.id);
+            // Auth type is redirect,
+            // so just redirect to the customer's bank
+            const authUrl = response.meta.authorization.redirect;
+            return res.redirect(authUrl);
+        default:
+            // No authorization needed; just verify the payment
+            const transactionId = response.data.id;
+            const transaction = await flw.Transaction.verify({ id: transactionId });
+            if (transaction.data.status == "successful") {
+                return res.redirect('/payment-successful');
+            } else if (transaction.data.status == "pending") {
+                // Schedule a job that polls for the status of the payment every 10 minutes
+                transactionVerificationQueue.add({id: transactionId});
+                return res.redirect('/payment-processing');
+            } else {
+                return res.redirect('/payment-failed');
+            }
+    }
+});
 
-                    "otp":otp ,
-                    "flw_ref": reCallCharge.data.flw_ref
-                })
-                // console.log(callValidate)
-                
+
+// The route where we send the user's auth details (Step 4)
+app.post('/pay/authorize', async (req, res) => {
+    const payload = req.session.charge_payload;
+    // Add the auth mode and requested fields to the payload,
+    // then call chargeCard again
+    payload.authorization = {
+        mode: req.session.auth_mode,
+    };
+    req.session.auth_fields.forEach(field => {
+        payload.authorization.field = req.body[field];
+    });
+    const response = await flw.Charge.card(payload);
+
+    switch (response?.meta?.authorization?.mode) {
+        case 'otp':
+            // Show the user a form to enter the OTP
+            req.session.flw_ref = response.data.flw_ref;
+            return res.redirect('/otp');
+        case 'redirect':
+            const authUrl = response.meta.authorization.redirect;
+            return res.redirect(authUrl);
+        default:
+            // No validation needed; just verify the payment
+            const transactionId = response.data.id;
+            const transaction = await flw.Transaction.verify({ id: transactionId });
+            if (transaction.data.status == "successful") {
+                return res.redirect('/success');
+            } else if (transaction.data.status == "pending") {
+                // Schedule a job that polls for the status of the payment every 10 minutes
+                transactionVerificationQueue.add({id: transactionId});
+                return res.redirect('/payment-processing');
+            } else {
+                return res.redirect('/failed');
             }
-            // For 3DS or VBV transactions, redirect users to their issue to authorize the transaction
-            if (response.meta.authorization.mode === 'redirect') {
-                
-                var url = response.meta.authorization.redirect
-                open(url)
-            }
-            
-            // console.log(response)
-            // res.render('success')
-            
-            
-        } catch (error) {
-            // console.log(error)
-            // res.render('failed')
+    }
+});
+
+
+// The route where we validate and verify the payment (Steps 5 - 6)
+app.post('/otp', async (req, res) => {
+    const response = await flw.Charge.validate({
+        otp: req.body.otp1,
+        flw_ref: req.session.flw_ref
+    });
+    if (response.data.status === 'successful' || response.data.status === 'pending') {
+        // Verify the payment
+        const transactionId = response.data.id;
+        const transaction = flw.Transaction.verify({ id: transactionId });
+        if (transaction.data.status == "successful") {
+            return res.redirect('/successful');
+        } else if (transaction.data.status == "pending") {
+            // Schedule a job that polls for the status of the payment every 10 minutes
+            transactionVerificationQueue.add({id: transactionId});
+            return res.redirect('/payment-processing');
         }
     }
-    
-    chargeCard();
-})
-    
 
+    return res.redirect('/failed');
+});
+
+// Our redirect_url. For 3DS payments, Flutterwave will redirect here after authorization,
+// and we can verify the payment (Step 6)
+app.post('/pay/redirect', async (req, res) => {
+    if (req.query.status === 'successful' || req.query.status === 'pending') {
+        // Verify the payment
+        const txRef = req.query.tx_ref;
+        const transactionId = await redis.getAsync(`txref-${txRef}`);
+        const transaction = flw.Transaction.verify({ id: transactionId });
+        if (transaction.data.status == "successful") {
+            return res.redirect('/payment-successful');
+        } else if (transaction.data.status == "pending") {
+            // Schedule a job that polls for the status of the payment every 10 minutes
+            transactionVerificationQueue.add({id: transactionId});
+            return res.redirect('/payment-processing');
+        }
+    }
+
+    return res.redirect('/payment-failed');
+});   
 
 //Navigating through the Admin page
 app.get('/toyota', (req,res)=>{
